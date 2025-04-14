@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Team {
+    char name[10];
+    int totalRuns;
+    int wickets;
+    int balls;
+    float overs;
+};
+
+void Score(struct Team* team1, struct Team* team2) {
+    printf("\n-------------------------\n");
+    printf("     Scoreboard      \n");
+    printf("-------------------------\n");
+    printf("Team %-15s\n", team1->name);
+    printf("Total Runs: %-10d\n", team1->totalRuns);
+    printf("Wickets: %-12d\n", team1->wickets);
+    printf("Overs: %.1f\n", team1->overs);
+    printf("\nTeam %-15s\n", team2->name);
+    printf("Total Runs: %-10d\n", team2->totalRuns);
+    printf("Wickets: %-12d\n", team2->wickets);
+    printf("Overs: %.1f\n", team2->overs);
+    printf("-------------------------\n");
+}
+
+void WinningTeam(struct Team* team1, struct Team* team2) {
+    printf("\n         Result          \n");
+    printf("-------------------------\n");
+    if (team1->totalRuns > team2->totalRuns)
+        printf("Team %s wins!\n", team1->name);
+    else if (team2->totalRuns > team1->totalRuns)
+        printf("Team %s wins!\n", team2->name);
+    else
+        printf("The match is a tie!\n");
+}
+
+int main() {
+    struct Team* team1 = (struct Team*) malloc(sizeof(struct Team));
+    struct Team* team2 = (struct Team*) malloc(sizeof(struct Team));
+    if (team1 == NULL || team2 == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    int totalOvers, option, runs;
+    char type[2];
+    char tempName[10];
+
+    printf("Enter the name of Team 1: ");
+    scanf("%9s", tempName);
+    strcpy(team1->name, tempName);
+
+    printf("Enter the name of Team 2: ");
+    scanf("%9s", tempName);
+    strcpy(team2->name, tempName);
+
+    printf("Enter the total number of overs: ");
+    scanf("%d", &totalOvers);
+
+    team1->totalRuns = 0;
+    team1->wickets = 0;
+    team1->balls = 0;
+    team1->overs = 0.0;
+    team2->totalRuns = 0;
+    team2->wickets = 0;
+    team2->balls = 0;
+    team2->overs = 0.0;
+
+    do {
+        printf("1. Enter %s score", team1->name);
+        printf("\n2. Enter %s score", team2->name);
+        printf("\n3. Result\n");
+        printf("\nEnter option: ");
+        scanf("%d", &option);
+
+        struct Team* currentTeam = NULL;
+        if (option == 1) {
+            currentTeam = team1;
+        } else if (option == 2) {
+            currentTeam = team2;
+        }
+
+        if (currentTeam != NULL) {
+            if (currentTeam->balls >= totalOvers * 6) {
+                printf("Team %s has completed their overs.\n", currentTeam->name);
+                continue;
+            }
+            printf("Enter 'R' for runs, 'W' for wicket, 'N' for no ball: ");
+            scanf("%1s", type);
+            if (strcmp(type, "R") == 0) {
+                printf("Enter runs scored: ");
+                scanf("%d", &runs);
+                if (runs >= 0 && runs <= 6) {
+                    currentTeam->totalRuns += runs;
+                    currentTeam->balls += 1;
+                    currentTeam->overs = currentTeam->balls / 6 + ((currentTeam->balls % 6) * 0.1);
+                    printf("\nScoreboard Updated\n");
+                } else {
+                    printf("\nInvalid runs.\n");
+                }
+            } else if (strcmp(type, "W") == 0) {
+                currentTeam->wickets += 1;
+                currentTeam->balls += 1;
+                currentTeam->overs = currentTeam->balls / 6 + ((currentTeam->balls % 6) * 0.1);
+                printf("\nScoreboard Updated\n");
+            } else if (strcmp(type, "N") == 0) {
+                printf("Enter runs scored on no ball: ");
+                scanf("%d", &runs);
+                if (runs >= 0 && runs <= 6) {
+                    currentTeam->totalRuns += runs + 1; 
+                    printf("Scoreboard Updated\n");
+                } else {
+                    printf("Invalid runs.\n");
+                }
+            } else {
+                printf("Invalid input.\n");
+            }
+            Score(team1, team2);
+        } else if (option == 3) {
+            printf("Exiting program...\n");
+            break;
+        } else {
+            printf("Invalid option. Please try again.\n");
+        }
+    } while (1);
+
+    WinningTeam(team1, team2);
+
+    free(team1);
+    free(team2);
+    return 0;
+}
+
